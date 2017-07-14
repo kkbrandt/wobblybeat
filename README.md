@@ -28,9 +28,13 @@ I think it looks super cool.
 ## Running WobblyBeat
 
 - Install node.js
-- clone this project
-- > npm install
-- > npm start
+- Clone this project
+- Run these commands:
+```bash
+    npm install
+    npm start
+```
+- Open the page at localhost:7500
 
 ## Organization
 

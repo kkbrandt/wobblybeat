@@ -21,9 +21,11 @@ class WebsiteServer {
             const file = fs.readFileSync('wobblybeat.html');
             res.end(file);
         })
-        this.server = app.listen(this.port);
+        this.server = app.listen(this.port, () => {
+            console.log(`Server listening at localhost:${this.port}`);
+        });
     }
 }
 
-const server = new WebsiteServer(80);
+const server = new WebsiteServer(7500);
 server.start();
