@@ -41,8 +41,7 @@ I think it looks super cool.
 js/wobblybeat.js is the core code. All the other js files are 
 open-source/supporting code.
 
-## Why are the dependencies managed by the order of the script tags in the html?
-## Why is most of the code in one file?
+## Why are the dependencies managed by the order of the script tags in the html? Why is most of the code in one file?
 
 Because I'm new to web programming. I tried using require + browserify, but
 the extra step of re-bundling after every change drove me insane. Any cleanup
