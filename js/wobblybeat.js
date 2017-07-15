@@ -45,6 +45,7 @@ class WobblyShape {
         this.size_ = 5;
         this.movement = 'expand';
         this.color_ = '#ffffff';
+        this.initMaterial_();
         this.shape = 'Sphere'; // Calls setter below.
         this.yRotation = 0.01;
         this.xRotation = 0;
@@ -53,6 +54,16 @@ class WobblyShape {
 
     get movementMultiplier() {
         return this.movement === 'expand' ? 1 : -1;
+    }
+
+    initMaterial_() {
+        this.material = new THREE.MeshPhongMaterial({
+            color: this.color_,
+            shininess: 100,
+            shading: THREE.SmoothShading,
+            // wireframe: true,
+            // wireframLineWidth: 0.01
+        });
     }
 
     /* Getters and Setters are for dat.GUI - It can only get/set
@@ -94,10 +105,7 @@ class WobblyShape {
                 break;
         }
         // Simple material - Should experiment here.
-        this.material = new THREE.MeshLambertMaterial({
-            color: this.color_,
-            side: sidedness,
-        });
+        this.material.side = sidedness;
         this.vertexNormals = threeJSHelpers.computeGeometryVertexNormals(this.geometry);
         this.setOriginalVertices_();
         this.createAndAddShape_();
@@ -241,6 +249,10 @@ function renderFrame() {
 
     controls.update(); // Perform user's mouse rotation or zoom.
 
+    if (meter.fps < systemSettings.fpsThreshold) {
+        meter.tick();
+        return;
+    }
     // get frequency data for this frame.
     var frequencyData = new Uint8Array(analyser.frequencyBinCount);
     analyser.getByteFrequencyData(frequencyData);
@@ -274,10 +286,12 @@ resize();
 window.addEventListener("resize", resize);
 
 
-class MouseSettings {
+class SystemSettings {
     constructor() {
         this.mouseSensitivity = 10;
+        this.fpsThreshold = 20;
     }
+
     set mouseSensitivity(val) {
         this.mouseRotateSensitivity_ = val;
         controls.rotateSpeed = val;
@@ -286,7 +300,50 @@ class MouseSettings {
         return this.mouseRotateSensitivity_;
     }
 }
-const mouseSettings = new MouseSettings();
+const systemSettings = new SystemSettings();
+
+class MaterialSettings {
+    constructor(wobblyShape) {
+        this.wobblyShape = wobblyShape;
+        this.wireframe_ = false;
+        this.shadingStr_ = 'smooth';
+    }
+
+    set wireframe(val) {
+        this.wireframe_ = val;
+        this.wobblyShape.material.wireframe = val;
+        this.wobblyShape.material.needsUpdate = true;
+    }
+    get wireframe() {
+        return this.wireframe_;
+    }
+
+    set shading(str) {
+        this.shadingStr_ = str;
+
+        switch (str) {
+            case 'flat':
+                this.wobblyShape.material.shading = THREE.FlatShading;
+                break;
+            case 'smooth':
+            default:
+                this.wobblyShape.material.shading = THREE.SmoothShading;
+        }
+        this.wobblyShape.material.needsUpdate = true;
+    }
+    get shading() {
+        return this.shadingStr_;
+    }
+
+    set shininess(val) {
+        this.wobblyShape.material.shininess = val;
+        this.wobblyShape.material.needsUpdate = true;
+    }
+    get shininess() {
+        return this.wobblyShape.material.shininess;
+    }
+}
+const materialSettings = new MaterialSettings(wobblyShape);
 
 var gui = new dat.GUI({
     autoPlace: false
@@ -297,7 +354,15 @@ gui.add(wobblyShape, 'wobbliness', 1, 20);
 gui.add(wobblyShape, 'movement', ['expand', 'contract']);
 gui.add(wobblyShape, 'size', 0.5, 10);
 gui.add(wobblyShape, 'shape', ['Cube', 'Plane', 'Ring', 'Icosahedron', 'Sphere', 'Torus', 'TorusKnot']);
-gui.add(mouseSettings, 'mouseSensitivity', 2, 15);
+const materialFolder = gui.addFolder('Material');
+materialFolder.add(materialSettings, 'wireframe');
+materialFolder.add(materialSettings, 'shading', ['smooth', 'flat']);
+materialFolder.add(materialSettings, 'shininess', 0, 300);
+materialFolder.open();
+const systemFolder = gui.addFolder('System');
+systemFolder.add(systemSettings, 'fpsThreshold', 15, 60);
+systemFolder.add(systemSettings, 'mouseSensitivity', 2, 15);
+
 var customContainer = $('.moveGUI').append($(gui.domElement));
 
 if (Detector.webgl) {
