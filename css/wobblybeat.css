@@ -54,3 +54,10 @@ canvas {
     top: 2em;
     left: 1em;
 }
+
+#github-button {
+    position: absolute;
+    bottom: 1em;
+    left: 1em;
+    background-color: transparent;
+}

@@ -59,10 +59,6 @@ class WobblyShape {
     initMaterial_() {
         this.material = new THREE.MeshPhongMaterial({
             color: this.color_,
-            shininess: 100,
-            shading: THREE.SmoothShading,
-            // wireframe: true,
-            // wireframLineWidth: 0.01
         });
     }
 
@@ -101,7 +97,7 @@ class WobblyShape {
                 this.geometry = new THREE.TorusKnotGeometry(sz, sz / 3, 50, 16);
                 break;
             case 'Sphere':
-                this.geometry = new THREE.SphereGeometry(sz, 32, 32);
+                this.geometry = new THREE.SphereGeometry(sz, 38, 38);
                 break;
         }
         // Simple material - Should experiment here.
@@ -226,11 +222,36 @@ const wobblyShape = new WobblyShape();
 var audio, ctx, audioSrc, analyser;
 var AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext;
 ctx = new AudioContext();
-audio = document.getElementById('song');
-audioSrc = ctx.createMediaElementSource(audio);
 analyser = ctx.createAnalyser();
-audioSrc.connect(analyser);
-analyser.connect(ctx.destination);
+
+function loadSound(videoId) {
+    $('.loadingbar').show();
+    var request = new XMLHttpRequest();
+    request.open("GET", `youtubeStream/${videoId}`, true);
+    request.responseType = "arraybuffer";
+
+    request.onload = function() {
+        var Data = request.response;
+        process(Data);
+    };
+
+    request.send();
+}
+
+function process(Data) {
+    ctx.decodeAudioData(Data, function(buffer) {
+        if (audioSrc) {
+            audioSrc.stop();
+        }
+        audioSrc = ctx.createBufferSource();
+        audioSrc.buffer = buffer;
+        audioSrc.connect(analyser);
+        analyser.connect(ctx.destination);
+        audioSrc.start(ctx.currentTime);
+        $('.loadingbar').hide();
+    });
+}
+loadSound('fT5EAYMzxUA');
 // we could configure the analyser: e.g. analyser.fftSize (for further infos read the AudioNode spec)
 
 // Add an FPSMeter so users can monitor how shitty my code is ;)
@@ -243,6 +264,8 @@ var meter = new FPSMeter(null, {
     history: 20
 });
 
+var maxVal = 1;
+
 // Standard web animation render loop.
 function renderFrame() {
     requestAnimationFrame(renderFrame);
@@ -253,18 +276,35 @@ function renderFrame() {
         meter.tick();
         return;
     }
+    const numVertices = wobblyShape.geometry.vertices.length;
+
+    let values = [];
+
     // get frequency data for this frame.
     var frequencyData = new Uint8Array(analyser.frequencyBinCount);
     analyser.getByteFrequencyData(frequencyData);
 
-    const numVertices = wobblyShape.geometry.vertices.length;
     // Cut off the top 15%, because it's always zeros.
-    const numBands = frequencyData.length * 0.85;
+    const numBands = frequencyData.length;
 
-    const values = [];
     const wobbliness = wobblyShape.wobbliness;
+
+    if (systemSettings.remapVertices !== 'Never') {
+        for (var i = numBands; i > 0; i--) {
+            var value = frequencyData[i];
+            if (value > 0) {
+                if (systemSettings.remapVertices === 'EveryFrame') {
+                    maxVal = i;
+                    break;
+                } else if (i > maxVal) {
+                    maxVal = i;
+                    break;
+                }
+            }
+        }
+    }
     // sample limited data from the total array.
-    var step = numBands / numVertices;
+    var step = (maxVal) / numVertices;
     for (var i = 0; i < numVertices; i++) {
         var value = frequencyData[Math.round(i * step)];
         // send values between 0 and wobliness.
@@ -288,6 +328,7 @@ window.addEventListener("resize", resize);
 
 class SystemSettings {
     constructor() {
+        this.remapVertices_ = 'Accumulate';
         this.mouseSensitivity = 10;
         this.fpsThreshold = 20;
     }
@@ -299,14 +340,27 @@ class SystemSettings {
     get mouseSensitivity() {
         return this.mouseRotateSensitivity_;
     }
+
+    set remapVertices(val) {
+        if (val === 'Never') {
+            maxVal = analyser.frequencyBinCount;
+        } else {
+            maxVal = 1;
+        }
+        this.remapVertices_ = val;
+    }
+    get remapVertices() {
+        return this.remapVertices_;
+    }
 }
 const systemSettings = new SystemSettings();
 
 class MaterialSettings {
     constructor(wobblyShape) {
         this.wobblyShape = wobblyShape;
-        this.wireframe_ = false;
-        this.shadingStr_ = 'smooth';
+        this.wireframe = false;
+        this.shading = 'flat';
+        this.shininess = 100;
     }
 
     set wireframe(val) {
@@ -356,10 +410,11 @@ gui.add(wobblyShape, 'size', 0.5, 10);
 gui.add(wobblyShape, 'shape', ['Cube', 'Plane', 'Ring', 'Icosahedron', 'Sphere', 'Torus', 'TorusKnot']);
 const materialFolder = gui.addFolder('Material');
 materialFolder.add(materialSettings, 'wireframe');
-materialFolder.add(materialSettings, 'shading', ['smooth', 'flat']);
+materialFolder.add(materialSettings, 'shading', ['flat', 'smooth']);
 materialFolder.add(materialSettings, 'shininess', 0, 300);
 materialFolder.open();
 const systemFolder = gui.addFolder('System');
+systemFolder.add(systemSettings, 'remapVertices', ['Never', 'Accumulate', 'EveryFrame']);
 systemFolder.add(systemSettings, 'fpsThreshold', 15, 60);
 systemFolder.add(systemSettings, 'mouseSensitivity', 2, 15);
 
@@ -367,8 +422,8 @@ var customContainer = $('.moveGUI').append($(gui.domElement));
 
 if (Detector.webgl) {
     renderFrame();
-    audio.load();
-    audio.play();
+    // audio.load();
+    // audio.play();
 } else {
     var warning = Detector.getWebGLErrorMessage();
     document.getElementById('container').appendChild(warning);

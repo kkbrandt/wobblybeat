@@ -1,0 +1,153 @@
+.loadingbar {
+    height: 40px;
+    width: 80px;
+    overflow: hidden;
+    bottom: 4em;
+    left: 50%;
+    position: absolute;
+    transform: translate(-50%);
+}
+
+.loadingbar>div {
+    float: left;
+    background-color: #40556a;
+    width: 8px;
+    position: relative;
+    bottom: -2px;
+    margin-top: 37px;
+    height: 3px;
+    -webkit-animation: loadingbarAnim 1.5s infinite ease-in-out;
+    -moz-animation: loadingbarAnim 1.5s infinite ease-in-out;
+    -o-animation: loadingbarAnim 1.5s infinite ease-in-out;
+    animation: loadingbarAnim 1.5s infinite ease-in-out;
+}
+
+.loadingbar .shaft1 {
+    -webkit-animation-delay: 0.05s;
+    -moz-animation-delay: 0.05s;
+    -o-animation-delay: 0.05s;
+    animation-delay: 0.05s;
+}
+
+.loadingbar .shaft2 {
+    -webkit-animation-delay: 0.1s;
+    -moz-animation-delay: 0.1s;
+    -o-animation-delay: 0.1s;
+    animation-delay: 0.1s;
+}
+
+.loadingbar .shaft3 {
+    -webkit-animation-delay: 0.15s;
+    -moz-animation-delay: 0.15s;
+    -o-animation-delay: 0.15s;
+    animation-delay: 0.15s;
+}
+
+.loadingbar .shaft4 {
+    -webkit-animation-delay: 0.2s;
+    -moz-animation-delay: 0.2s;
+    -o-animation-delay: 0.2s;
+    animation-delay: 0.2s;
+}
+
+.loadingbar .shaft5 {
+    -webkit-animation-delay: 0.25s;
+    -moz-animation-delay: 0.25s;
+    -o-animation-delay: 0.25s;
+    animation-delay: 0.25s;
+}
+
+.loadingbar .shaft6 {
+    -webkit-animation-delay: 0.3s;
+    -moz-animation-delay: 0.3s;
+    -o-animation-delay: 0.3s;
+    animation-delay: 0.3s;
+}
+
+.loadingbar .shaft7 {
+    -webkit-animation-delay: 0.35s;
+    -moz-animation-delay: 0.35s;
+    -o-animation-delay: 0.35s;
+    animation-delay: 0.35s;
+}
+
+.loadingbar .shaft8 {
+    -webkit-animation-delay: 0.4s;
+    -moz-animation-delay: 0.4s;
+    -o-animation-delay: 0.4s;
+    animation-delay: 0.4s;
+}
+
+.loadingbar .shaft9 {
+    -webkit-animation-delay: 0.45s;
+    -moz-animation-delay: 0.45s;
+    -o-animation-delay: 0.45s;
+    animation-delay: 0.45s;
+}
+
+.loadingbar .shaft10 {
+    -webkit-animation-delay: 0.5s;
+    -moz-animation-delay: 0.5s;
+    -o-animation-delay: 0.5s;
+    animation-delay: 0.5s;
+}
+
+@-webkit-keyframes loadingbarAnim {
+    25% {
+        transform: skewY(25deg);
+    }
+    50% {
+        height: 100%;
+        transform: skewY(0);
+        margin-top: 0;
+        background: #abc;
+    }
+    75% {
+        transform: skewY(-25deg);
+    }
+}
+
+@-moz-keyframes loadingbarAnim {
+    25% {
+        transform: skewY(25deg);
+    }
+    50% {
+        height: 100%;
+        transform: skewY(0);
+        margin-top: 0;
+        background: #abc;
+    }
+    75% {
+        transform: skewY(-25deg);
+    }
+}
+
+@-o-keyframes loadingbarAnim {
+    25% {
+        transform: skewY(25deg);
+    }
+    50% {
+        height: 100%;
+        transform: skewY(0);
+        margin-top: 0;
+        background: #abc;
+    }
+    75% {
+        transform: skewY(-25deg);
+    }
+}
+
+@keyframes loadingbarAnim {
+    25% {
+        transform: skewY(25deg);
+    }
+    50% {
+        height: 100%;
+        transform: skewY(0);
+        margin-top: 0;
+        background: #abc;
+    }
+    75% {
+        transform: skewY(-25deg);
+    }
+}

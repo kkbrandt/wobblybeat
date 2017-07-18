@@ -7,14 +7,29 @@
 
     <title>WOBBLE</title>
     <link rel="stylesheet" href="css/wobblybeat.css">
+    <link rel="stylesheet" href="css/loadingbar.css">
 </head>
 
 <body>
     <div id="info" class='h1'>WOBBLE TO THE BEAT</div>
     <div class='moveGUI'></div>
     <div class='fpsMeter'></div>
-    <span id='songDescription'>Song: Vexento - We Are One</span>
-    <audio id="song" crossOrigin="anonymous" src="static/vexento-WeAreOne.mp3" type="audio/mpeg" controls>audio element not supported</audio>
+    <!-- Place this tag where you want the button to render. -->
+    <div id="github-button">
+        <a class="github-button" href="https://github.com/kkbrandt/wobblybeat" data-size="large" aria-label="Star me on GitHub">Star</a>
+    </div>
+    <div class="loadingbar">
+        <div class="shaft1"></div>
+        <div class="shaft2"></div>
+        <div class="shaft3"></div>
+        <div class="shaft4"></div>
+        <div class="shaft5"></div>
+        <div class="shaft6"></div>
+        <div class="shaft7"></div>
+        <div class="shaft8"></div>
+        <div class="shaft9"></div>
+        <div class="shaft10"></div>
+    </div>
     <!--<p id="myLog"></p>-->
 
     <script src="js/Detector.js"></script>
@@ -25,6 +40,7 @@
     <script src="js/fpsmeter.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <script src="js/wobblybeat.js"></script>
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
 </body>
 
 </html>
