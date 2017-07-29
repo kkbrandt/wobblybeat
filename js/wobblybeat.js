@@ -57,7 +57,7 @@ class WobblyShape {
     }
 
     initMaterial_() {
-        this.material = new THREE.MeshPhongMaterial({
+        this.material = new THREE.MeshStandardMaterial({
             color: this.color_,
         });
     }
@@ -149,12 +149,13 @@ class WobblyShape {
         // we need to add lights so we can see our shape.
         this.lights = [];
         const lightPositions = [
-            [25, 0, 0],
-            [0, 25, 0],
-            [0, 0, 25],
-            [-25, 0, 0],
-            [0, -25, 0],
-            [0, 0, -25],
+            [50, 0, 0],
+            [0, 0, 0],
+            [0, 50, 0],
+            [0, 0, 50],
+            [-50, 0, 0],
+            [0, -50, 0],
+            [0, 0, -50],
         ]
 
         lightPositions.map(lightPos => {
@@ -264,68 +265,7 @@ var meter = new FPSMeter(null, {
     history: 20
 });
 
-var maxVal = 1;
-
-// Standard web animation render loop.
-function renderFrame() {
-    requestAnimationFrame(renderFrame);
-
-    controls.update(); // Perform user's mouse rotation or zoom.
-
-    if (meter.fps < systemSettings.fpsThreshold) {
-        meter.tick();
-        return;
-    }
-    const numVertices = wobblyShape.geometry.vertices.length;
-
-    let values = [];
-
-    // get frequency data for this frame.
-    var frequencyData = new Uint8Array(analyser.frequencyBinCount);
-    analyser.getByteFrequencyData(frequencyData);
-
-    // Cut off the top 15%, because it's always zeros.
-    const numBands = frequencyData.length;
-
-    const wobbliness = wobblyShape.wobbliness;
-
-    if (systemSettings.remapVertices !== 'Never') {
-        for (var i = numBands; i > 0; i--) {
-            var value = frequencyData[i];
-            if (value > 0) {
-                if (systemSettings.remapVertices === 'EveryFrame') {
-                    maxVal = i;
-                    break;
-                } else if (i > maxVal) {
-                    maxVal = i;
-                    break;
-                }
-            }
-        }
-    }
-    // sample limited data from the total array.
-    var step = (maxVal) / numVertices;
-    for (var i = 0; i < numVertices; i++) {
-        var value = frequencyData[Math.round(i * step)];
-        // send values between 0 and wobliness.
-        values.push(value * wobbliness / 255);
-    }
-
-    wobblyShape.moveVertices(values);
-    renderer.render(scene, camera);
-    meter.tick();
-}
-
-// Gracefully handle screen resizing
-function resize() {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-}
-resize();
-window.addEventListener("resize", resize);
-
-
+/////////////////////////////////////// SETTINGS ///////////////////////////////////////////
 class SystemSettings {
     constructor() {
         this.remapVertices_ = 'Accumulate';
@@ -396,6 +336,13 @@ class MaterialSettings {
     get shininess() {
         return this.wobblyShape.material.shininess;
     }
+
+    set roughness(val) {
+        this.wobblyShape.material.roughness = val;
+    }
+    get roughness() {
+        return this.wobblyShape.material.roughness;
+    }
 }
 const materialSettings = new MaterialSettings(wobblyShape);
 
@@ -412,6 +359,7 @@ const materialFolder = gui.addFolder('Material');
 materialFolder.add(materialSettings, 'wireframe');
 materialFolder.add(materialSettings, 'shading', ['flat', 'smooth']);
 materialFolder.add(materialSettings, 'shininess', 0, 300);
+materialFolder.add(materialSettings, 'roughness', 0.0, 1.0);
 materialFolder.open();
 const systemFolder = gui.addFolder('System');
 systemFolder.add(systemSettings, 'remapVertices', ['Never', 'Accumulate', 'EveryFrame']);
@@ -419,6 +367,69 @@ systemFolder.add(systemSettings, 'fpsThreshold', 15, 60);
 systemFolder.add(systemSettings, 'mouseSensitivity', 2, 15);
 
 var customContainer = $('.moveGUI').append($(gui.domElement));
+
+
+// Gracefully handle screen resizing
+function resize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+}
+resize();
+window.addEventListener("resize", resize);
+
+
+var maxVal = 1;
+// Standard web animation render loop.
+function renderFrame() {
+    requestAnimationFrame(renderFrame);
+
+    controls.update(); // Perform user's mouse rotation or zoom.
+
+    if (meter.fps < systemSettings.fpsThreshold) {
+        meter.tick();
+        return;
+    }
+    const numVertices = wobblyShape.geometry.vertices.length;
+
+    let values = [];
+
+    // get frequency data for this frame.
+    var frequencyData = new Uint8Array(analyser.frequencyBinCount);
+    analyser.getByteFrequencyData(frequencyData);
+
+    // Cut off the top 15%, because it's always zeros.
+    const numBands = frequencyData.length;
+
+    const wobbliness = wobblyShape.wobbliness;
+
+    if (systemSettings.remapVertices !== 'Never') {
+        for (var i = numBands; i > 0; i--) {
+            var value = frequencyData[i];
+            if (value > 0) {
+                if (systemSettings.remapVertices === 'EveryFrame') {
+                    maxVal = i;
+                    break;
+                } else if (i > maxVal) {
+                    maxVal = i;
+                    break;
+                }
+            }
+        }
+    }
+    // sample limited data from the total array.
+    var step = (maxVal) / numVertices;
+    for (var i = 0; i < numVertices; i++) {
+        var value = frequencyData[Math.round(i * step)];
+        // send values between 0 and wobliness.
+        values.push(value * wobbliness / 255);
+    }
+
+    wobblyShape.moveVertices(values);
+    renderer.render(scene, camera);
+    meter.tick();
+}
+
 
 if (Detector.webgl) {
     renderFrame();
