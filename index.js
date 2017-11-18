@@ -12,17 +12,16 @@ class WebsiteServer {
     }
 
     start() {
-        app.use('/js', express.static('js'));
-        app.use('/static', express.static('static'));
+        // app.use('/js', express.static('js'));
+        // app.use('/static', express.static('static'));
         app.use('/css', express.static('css'));
 
+        app.use('/lib', express.static('lib'));
+        app.use('/', express.static('./'));
         app.get('/', (req, res) => {
-            res.redirect('/wobblybeat');
-        })
-        app.get('/wobblybeat', (req, res) => {
-            const file = fs.readFileSync('wobblybeat.html');
+            const file = fs.readFileSync('index.html');
             res.end(file);
-        })
+        });
         app.get('/youtubeStream/:videoId', (req, res) => {
             var requestUrl = 'http://youtube.com/watch?v=' + req.params.videoId
             try {
@@ -30,12 +29,12 @@ class WebsiteServer {
             } catch (exception) {
                 res.status(500).send(exception)
             }
-        })
+        });
         this.server = app.listen(this.port, () => {
             console.log(`Server listening at localhost:${this.port}`);
         });
     }
 }
 
-const server = new WebsiteServer(7500);
+const server = new WebsiteServer(7501);
 server.start();
