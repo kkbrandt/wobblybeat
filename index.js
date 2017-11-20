@@ -2,6 +2,7 @@
 
 const express = require('express');
 const app = express();
+const https = require('https');
 const fs = require('fs');
 const youtubeStream = require('youtube-audio-stream')
 
@@ -30,11 +31,17 @@ class WebsiteServer {
                 res.status(500).send(exception)
             }
         });
-        this.server = app.listen(this.port, () => {
+
+        const httpsOptions = {
+            key: fs.readFileSync('./key.pem'),
+            cert: fs.readFileSync('./cert.pem')
+        }
+
+        this.server = https.createServer(httpsOptions, app).listen(this.port, () => {
             console.log(`Server listening at localhost:${this.port}`);
         });
     }
 }
 
-const server = new WebsiteServer(7501);
+const server = new WebsiteServer(7500);
 server.start();
