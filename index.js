@@ -8,8 +8,9 @@ const youtubeStream = require('youtube-audio-stream')
 
 
 class WebsiteServer {
-    constructor(port) {
+    constructor(port, https) {
         this.port = port;
+        this.https = https;
     }
 
     start() {
@@ -32,16 +33,28 @@ class WebsiteServer {
             }
         });
 
-        const httpsOptions = {
-            key: fs.readFileSync('./key.pem'),
-            cert: fs.readFileSync('./cert.pem')
-        }
+        if (this.https) {
+            const httpsOptions = {
+                key: fs.readFileSync('./server.key'),
+                cert: fs.readFileSync('./server.cert')
+            }
 
-        this.server = https.createServer(httpsOptions, app).listen(this.port, () => {
-            console.log(`Server listening at localhost:${this.port}`);
-        });
+            this.server = https.createServer(httpsOptions, app).listen(this.port, () => {
+                console.log(`HTTPS Server listening at localhost:${this.port}`);
+            });
+        } else {
+            this.server = app.listen(this.port, () => {
+                console.log(`HTTP Server listening at localhost:${this.port}`);
+            });
+        }
     }
 }
 
-const server = new WebsiteServer(7500);
+const useHttps = process.env.USE_HTTPS === 'true';
+const port = useHttps ? 7501 : 7500;
+const server = new WebsiteServer(port, useHttps);
 server.start();
+
+process.once('SIGTERM', () => {
+    server.close();
+});

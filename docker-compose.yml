@@ -1,0 +1,11 @@
+version: '2'
+services:
+  wobbly:
+    build: .
+    # image: 947166851722.dkr.ecr.us-west-2.amazonaws.com/wobblybeat:latest
+    ports:
+      - "80:7500"
+      - "443:7501"
+    environment:
+      USE_HTTPS: 'true'
+      # USE_HTTPS: 'false'
