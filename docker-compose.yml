@@ -9,3 +9,5 @@ services:
     environment:
       USE_HTTPS: 'true'
       # USE_HTTPS: 'false'
+    volumes:
+      - ./:/wobbly

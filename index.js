@@ -14,12 +14,21 @@ class WebsiteServer {
     }
 
     start() {
+        app.use(function(req, res, next) {
+            console.log(req.header('x-forwarded-proto') + '://' + req.get('Host') + req.url);
+            if (req.header('x-forwarded-proto') === 'http') {
+                console.log('redirecting??');
+                return res.redirect(['https://', req.get('Host'), req.url].join(''));
+            }
+            next();
+        });
         // app.use('/js', express.static('js'));
         // app.use('/static', express.static('static'));
         app.use('/css', express.static('css'));
 
         app.use('/lib', express.static('lib'));
         app.use('/', express.static('./'));
+
         app.get('/', (req, res) => {
             const file = fs.readFileSync('index.html');
             res.end(file);
