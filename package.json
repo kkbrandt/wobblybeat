@@ -7,6 +7,10 @@
     "start": "node index.js"
   },
   "author": "Kaleo Brandt",
+  "repository": { 
+    "type": "git",
+    "url": "https://github.com/kkbrandt/wobblybeat"
+  },
   "license": "ISC",
   "dependencies": {
     "express": "^4.15.3",
