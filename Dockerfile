@@ -1,14 +1,24 @@
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
 RUN apt update && apt install -y ffmpeg
-RUN apt update && apt install -y nodejs npm
-RUN ln -s `which nodejs` /usr/bin/node
+RUN apt install -y nodejs npm
+RUN node -v
+# RUN ln -s `which nodejs` /usr/bin/node
 
 # Switch to non-root user
 RUN useradd -ms /bin/bash wobbler
 
 RUN mkdir -p /wobbly && \
     chown -R wobbler: /wobbly
+
+#RUN echo "upgrading npm...";
+#RUN npm install npm@latest -g
+
+RUN echo "upgrading Node..."
+RUN node -v
+#RUN npm cache clean -f
+#RUN npm install -g n<
+#RUN n stable
 
 USER wobbler
 

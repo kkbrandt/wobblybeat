@@ -14,6 +14,6 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.15.3",
-    "youtube-audio-stream": "https://github.com/kkbrandt/youtube-audio-stream/tarball/master"
+    "youtube-audio-stream": "^0.3.5" 
   }
 }

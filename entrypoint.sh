@@ -1,4 +1,5 @@
 echo "Installing NPM packages...";
-npm install;
+npm install
+
 echo "Starting service...";
-node index.js;
+node index.js
